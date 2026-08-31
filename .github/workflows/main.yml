@@ -25,11 +25,11 @@ jobs:
           
       - name: Create New User & Password
         run: |
-          sudo useradd -m -s /bin/bash admin
-          echo "admin:password123" | sudo chpasswd
-          sudo usermod -aG sudo admin
-          echo "xfce4-session" > /home/admin/.xsession
-          sudo chown admin:admin /home/admin/.xsession
+          sudo useradd -m -s /bin/bash myuser
+          echo "myuser:password123" | sudo chpasswd
+          sudo usermod -aG sudo myuser
+          echo "xfce4-session" | sudo tee /home/myuser/.xsession > /dev/null
+          sudo chown myuser:myuser /home/myuser/.xsession
           sudo systemctl restart xrdp
           
       - name: Keep Alive
