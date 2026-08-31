@@ -12,9 +12,9 @@ jobs:
       - name: Install Tailscale Manually
         run: |
           curl -fsSL https://tailscale.com/install.sh | sh
-          sudo tailscale up --authkey=${{ secrets.TAILSCALE_AUTH_KEY }} --accept-dns=false
+          sudo tailscale up --authkey=$TAILSCALE_AUTH_KEY --accept-dns=false
         env:
-          TS_AUTHKEY: ${{ secrets.TAILSCALE_AUTH_KEY }}
+          TAILSCALE_AUTH_KEY: ${{ secrets.TAILSCALE_AUTH_KEY }}
 
       - name: Install XFCE Desktop & VNC
         run: |
@@ -27,4 +27,9 @@ jobs:
           echo "password123" | vncpasswd -f > ~/.vnc/passwd
           chmod 600 ~/.vnc/passwd
           vncserver :1 -geometry 1280x720 -depth 24
+          
+      - name: Keep Alive
+        run: |
+          echo "RDP is ready! Keeping alive..."
+          sleep infinity
           
