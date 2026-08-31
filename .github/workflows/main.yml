@@ -26,7 +26,8 @@ jobs:
           mkdir -p ~/.vnc
           echo "password123" | vncpasswd -f > ~/.vnc/passwd
           chmod 600 ~/.vnc/passwd
-          vncserver :1 -geometry 1280x720 -depth 24
+          vncserver -kill :1 || true
+          vncserver :1 -geometry 1280x720 -depth 24 -localhost no
           
       - name: Keep Alive
         run: |
