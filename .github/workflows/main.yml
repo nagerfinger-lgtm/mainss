@@ -21,13 +21,15 @@ jobs:
           sudo apt update
           sudo apt install -y xfce4 xfce4-goodies xrdp
           sudo systemctl enable xrdp
-          echo "xfce4-session" > /etc/skel/.xsession
+          echo "xfce4-session" | sudo tee /etc/skel/.xsession > /dev/null
           
       - name: Create New User & Password
         run: |
           sudo useradd -m -s /bin/bash admin
           echo "admin:password123" | sudo chpasswd
           sudo usermod -aG sudo admin
+          echo "xfce4-session" > /home/admin/.xsession
+          sudo chown admin:admin /home/admin/.xsession
           sudo systemctl restart xrdp
           
       - name: Keep Alive
