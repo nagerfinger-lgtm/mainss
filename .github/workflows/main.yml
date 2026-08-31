@@ -16,21 +16,21 @@ jobs:
         env:
           TAILSCALE_AUTH_KEY: ${{ secrets.TAILSCALE_AUTH_KEY }}
 
-      - name: Install XFCE Desktop & VNC
+      - name: Install XFCE Desktop & XRDP
         run: |
           sudo apt update
-          sudo apt install -y xfce4 xfce4-goodies tightvncserver
+          sudo apt install -y xfce4 xfce4-goodies xrdp
+          sudo systemctl enable xrdp
+          echo "xfce4-session" > ~/.xsession
+          sudo sed -i 's/port=3389/port=3389/g' /etc/xrdp/xrdp.ini
+          sudo systemctl restart xrdp
           
-      - name: Start VNC Server
+      - name: Set Password for Runner
         run: |
-          mkdir -p ~/.vnc
-          echo "password123" | vncpasswd -f > ~/.vnc/passwd
-          chmod 600 ~/.vnc/passwd
-          vncserver -kill :1 || true
-          vncserver :1 -geometry 1280x720 -depth 24 -localhost no
+          echo "runner:password123" | sudo chpasswd
           
       - name: Keep Alive
         run: |
-          echo "RDP is ready! Keeping alive..."
+          echo "XRDP is ready! Keeping alive..."
           sleep infinity
           
