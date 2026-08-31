@@ -21,5 +21,8 @@ jobs:
           
       - name: Start VNC Server
         run: |
+          mkdir -p ~/.vnc
+          echo "password123" | vncpasswd -f > ~/.vnc/passwd
+          chmod 600 ~/.vnc/passwd
           vncserver :1 -geometry 1280x720 -depth 24
           
