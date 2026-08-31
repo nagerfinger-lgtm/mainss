@@ -1,4 +1,3 @@
-
 name: Tailscale Linux RDP
 
 on: [workflow_dispatch]
@@ -14,6 +13,8 @@ jobs:
         run: |
           curl -fsSL https://tailscale.com/install.sh | sh
           sudo tailscale up --authkey=${{ secrets.TAILSCALE_AUTH_KEY }} --accept-dns=false
+        env:
+          TS_AUTHKEY: ${{ secrets.TAILSCALE_AUTH_KEY }}
 
       - name: Install XFCE Desktop & VNC
         run: |
