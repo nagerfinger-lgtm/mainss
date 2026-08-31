@@ -1,42 +1,27 @@
-name: RDP
+name: Tailscale Linux RDP
 
-on:
-  workflow_dispatch:
+on: [workflow_dispatch]
 
 jobs:
-  secure-rdp:
-    runs-on: windows-latest
-    timeout-minutes: 3600
-
+  build:
+    runs-on: ubuntu-latest
     steps:
-    - name: Configure Core RDP Settings
-      run: |
-        Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name "fDenyTSConnections" -Value 0
-        Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -Name "UserAuthentication" -Value 1
-        Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
-        Set-ItemProperty -Path 'HKLM:\Software\Policies\Microsoft\Windows NT\Terminal Services' -Name "MinEncryptionLevel" -Value 1
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
-    - name: Create RDP User with Secure Password
-      run: |
-        $Password = ConvertTo-SecureString "F8!JT7J42'uf9v" -AsPlainText -Force
-        New-LocalUser -Name "User" -Password $Password
-        Add-LocalGroupMember -Group "Administrators" -Member "User"
-        Add-LocalGroupMember -Group "Remote Desktop Users" -Member "User"
+      - name: Connect to Tailscale
+        uses: tailscale/github-action@v2
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }} # ან ძველი გასაღებისთვის: authkey: ${{ secrets.TS_AUTHKEY }}
+          authkey: ${{ secrets.TS_AUTHKEY }}
+          version: latest
 
-    - name: Establish Tailscale Connection
-      uses: tailscale/github-action@v2
-      with:
-        oauth-client-id: ${{ secrets.TAILSCALE_AUTH_KEY }}
-        args: --authkey=${{ secrets.TAILSCALE_AUTH_KEY }} --hostname=server-rdp
+      - name: Install XFCE Desktop & VNC
+        run: |
+          sudo apt update
+          sudo apt install -y xfce4 xfce4-goodies tightvncserver
 
-    - name: Maintain Connection
-      run: |
-        Write-Host "=== Tailscale IP: $(tailscale ip -4) ==="
-        Write-Host "=== RDP ACCESS ==="
-        Write-Host "Address: $(tailscale ip -4)"
-        Write-Host "Username: User"
-        Write-Host "Password: F8!JT7J42'uf9v"
-        while ($true) {
-          Start-Sleep -Seconds 300
-        }
-        
+      - name: Start VNC Server
+        run: |
+          vncserver :1 -geometry 1280x720 -depth 24
+          
